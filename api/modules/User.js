@@ -1,10 +1,6 @@
 const express = require('express');
-const router = express.Router();
-const mysql = require("mysql2");
-const bodyParser = require('body-parser');
 const crypto = require("crypto-js");
-const jsonParser = bodyParser.json()
-const urlencodedParser = bodyParser.urlencoded({ extended: false });
+
 
 
 class User {
@@ -116,6 +112,20 @@ class User {
             .catch(err => {
                 return { status: 500, body: { error: err } };
             })
+    }
+    async isUser(user_id) {
+        const sql = `SELECT * FROM users WHERE user_id="${user_id}"`;
+        return this.connection.promise().query(sql)
+            .then(result => {
+                if (result[0][0]) {
+                    return true;
+                } else {
+                    return false;
+                }
+            })
+            .catch(err => {
+                return false;
+            });
     }
 }
 

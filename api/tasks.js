@@ -31,11 +31,13 @@ router.post('/create', passport.authenticate('bearer', { session: false }), urle
 
 });
 router.get('/createdtasks', passport.authenticate('bearer', { session: false }), async(req, res) => {
-    const response_data = await Task.getCreatedTasksById(req.user.user_id);
+    const get_opts = validateGetProps(req.query);
+    const response_data = await Task.getCreatedTasksById(req.user.user_id, get_opts);
     res.status(response_data.status).json(response_data.body);
 });
 router.get('/receivedtasks', passport.authenticate('bearer', { session: false }), async(req, res) => {
-    const response_data = await Task.getReceivedTasksById(req.user.user_id);
+    const get_opts = validateGetProps(req.query);
+    const response_data = await Task.getReceivedTasksById(req.user.user_id, get_opts);
     res.status(response_data.status).json(response_data.body);
 });
 router.put('/update', passport.authenticate('bearer', { session: false }), urlencodedParser, async(req, res) => {
@@ -101,25 +103,30 @@ router.delete('/remove', passport.authenticate('bearer', { session: false }), as
 router.put('/setexec', passport.authenticate('bearer', { session: false }), urlencodedParser, async(req, res) => {
     const executor_id = req.body.exec_id;
     const task_id = req.query.id;
-    if (task_id && task_id > 0) {
-        const task_data = await Task.getTaskById(task_id);
-        if (task_data.status == 200) {
-            if (req.user.user_id == task_data.body.task.owner_id) {
-                if (executor_id == req.user.user_id) {
-                    res.status(400).json({ error: "Task couldn't be set on it's owner" });
-                } else {
-                    const response_data = await Task.setExec(task_id, executor_id);
-                    res.status(response_data.status).json(response_data.body);
-                }
+    if (task_id && task_id > 0 && executor_id) {
+        if (await User.isUser(executor_id)) {
+            const task_data = await Task.getTaskById(task_id);
+            if (task_data.status == 200) {
+                if (req.user.user_id == task_data.body.task.owner_id) {
+                    if (executor_id == req.user.user_id) {
+                        res.status(400).json({ error: "Task couldn't be set on it's owner" });
+                    } else {
+                        const response_data = await Task.setExec(task_id, executor_id);
+                        res.status(response_data.status).json(response_data.body);
+                    }
 
+                } else {
+                    res.status(401).json({ error: "Access Denied" });
+                }
             } else {
-                res.status(401).json({ error: "Access Denied" });
+                res.status(task_data.status).json(task_data.body);
             }
         } else {
-            res.status(task_data.status).json(task_data.body);
+            res.status(404).json({ error: "Executor not found" });
         }
+
     } else {
-        res.status(400).json({ error: "Invalid ID" });
+        res.status(400).json({ error: "Invalid executor or task id" });
     }
 })
 
@@ -134,6 +141,14 @@ function validateCreationData(data) {
     } else {
         return null;
     }
+}
+
+function validateGetProps(props) {
+    let filter = null;
+    let sorting = null;
+    if (props.filter == 0 || props.filter == 1 || props.filter == 2) filter = props.filter;
+    if (props.sorting == 'old' || props.sorting == 'new') sorting = props.sorting;
+    return { sorting: sorting, filter: filter };
 }
 
 

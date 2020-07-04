@@ -24,18 +24,31 @@ class Task {
                 return { status: 500, body: { error: err } };
             })
     }
-    async getCreatedTasksById(id) {
-        const sql = `SELECT * FROM tasks WHERE owner_id=${id}`;
+    async getCreatedTasksById(id, get_opts) {
+        let filter_opt = '';
+        if (get_opts.filter) {
+            filter_opt = `AND status='${task_states[get_opts.filter]}'`;
+        }
+        const sql = `SELECT * FROM tasks WHERE (owner_id=${id} ${filter_opt})`;
         return this.connection.promise().query(sql)
             .then(results => {
                 return { status: 200, body: { tasks: results[0] } }
             })
             .catch(err => {
-                return { status: 500, body: { error: "Internal server error" } };
+                return { status: 500, body: { error: err } };
             })
     }
-    async getReceivedTasksById(id) {
-        const sql = `SELECT * FROM tasks WHERE exec_id=${id}`;
+    async getReceivedTasksById(id, get_opts) {
+        let sort_opt = '';
+        let filter_opt = '';
+        if (get_opts.sorting) {
+            sort_opt = `ORDER BY owner_id`;
+            if (get_opts.sorting == 'new') sort_opt += ' DESC';
+        }
+        if (get_opts.filter) {
+            filter_opt = `AND status='${task_states[get_opts.filter]}'`;
+        }
+        const sql = `SELECT * FROM tasks WHERE (owner_id=${id} ${filter_opt}) ${sort_opt}`;
         return this.connection.promise().query(sql)
             .then(results => {
                 return { status: 200, body: { tasks: results[0] } }
@@ -88,7 +101,8 @@ class Task {
             })
     }
     async setExec(task_id, exec_id) {
-        const sql = `UPDATE tasks SET exec_id='${exec_id}' WHERE id =${task_id}`;
+        const sql = `UPDATE tasks SET exec_id=${exec_id} WHERE id =${task_id}`;
+        console.log(sql);
         return this.connection.promise().query(sql)
             .then(result => {
                 return { status: 200, body: { info: "Executor is successfully set" } };
