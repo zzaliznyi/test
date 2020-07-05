@@ -1,28 +1,29 @@
 {
-  "name": "test",
-  "version": "1.0.0",
-  "description": "��#\u0000 \u0000t\u0000e\u0000s\u0000t\u0000\r\u0000 \u0000",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/zahasenok/test.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/zahasenok/test/issues"
-  },
-  "homepage": "https://github.com/zahasenok/test#readme",
-  "dependencies": {
-    "body-parser": "^1.19.0",
-    "crypto-js": "^4.0.0",
-    "express": "^4.17.1",
-    "mysql2": "^2.1.0",
-    "passport": "^0.4.1",
-    "passport-http-bearer": "^1.0.1"
-  }
+    "name": "test",
+    "version": "1.0.0",
+    "description": "��#\u0000 \u0000t\u0000e\u0000s\u0000t\u0000\r\u0000 \u0000",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "start": "node main.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/zahasenok/test.git"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/zahasenok/test/issues"
+    },
+    "homepage": "https://github.com/zahasenok/test#readme",
+    "dependencies": {
+        "body-parser": "^1.19.0",
+        "crypto-js": "^4.0.0",
+        "express": "^4.17.1",
+        "mysql2": "^2.1.0",
+        "passport": "^0.4.1",
+        "passport-http-bearer": "^1.0.1"
+    }
 }

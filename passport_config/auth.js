@@ -10,7 +10,7 @@ passport.use(new BearerStrategy(
     async function(token, done) {
         const user = await User.getUserByToken(token);
         if (!user) { return done(null, false); }
-        if (user.expire_date >= Date.now()) {
+        if (user.expire_date < Date.now()) {
             return done(null, false);
         }
         console.log(Date.now())

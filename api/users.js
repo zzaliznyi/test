@@ -29,7 +29,8 @@ router.get('/authorization', async(req, res) => {
     }
 });
 router.get('/info', passport.authenticate('bearer', { session: false }), async(req, res) => {
-    res.status(200).json(req.user);
+    const response = { name: req.user.first_name, last_name: req.user.last_name, token: req.user.token }
+    res.status(200).json(response);
 });
 router.put('/update', passport.authenticate('bearer', { session: false }), urlencodedParser, async(req, res) => {
     const user = req.user;
@@ -72,19 +73,21 @@ router.put('/update', passport.authenticate('bearer', { session: false }), urlen
         res.status(400).json({ error: "Wrong Token" });
     }
 });
-router.delete('/delete', urlencodedParser, async(req, res) => {
-    const user = await User.getUserByToken(req.query.token);
+router.delete('/delete', passport.authenticate('bearer', { session: false }), urlencodedParser, async(req, res) => {
+    const user = await User.getUserByToken(req.user.token);
     if (req.body && user) {
         if (crypto.SHA512(req.body.password) == user.password) {
             const response_data = await User.removeUserById(user.user_id);
             res.status(response_data.status).json(response_data.body);
+        } else {
+            res.status(400).json({ error: "Wrong password or token" });
         }
     } else {
         res.status(400).json({ error: "Wrong password or token" });
     }
 });
 router.get('/all', passport.authenticate('bearer', { session: false }), async(req, res) => {
-    const pagination = 10;
+    const pagination = 5;
     let page = 1;
     if (req.query.page && req.query.page >= 0) page = req.query.page;
     const response_data = await User.getAllUsers(page, pagination);
